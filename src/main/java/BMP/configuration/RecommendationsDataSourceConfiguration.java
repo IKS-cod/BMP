@@ -8,7 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-//Класс для конфигурации базы данных
+/**
+ * Класс для конфигурации базы данных
+ * @author Невзорова Екатерина
+ */
 @Configuration
 public class RecommendationsDataSourceConfiguration {
 
