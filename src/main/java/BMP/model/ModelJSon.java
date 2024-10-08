@@ -3,6 +3,7 @@ package BMP.model;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class ModelJSon {
@@ -32,5 +33,26 @@ public class ModelJSon {
 
     public ModelJSon() {
 
+    }
+
+    @Override
+    public String toString() {
+        return "ModelJSon{" +
+                "user_id='" + user_id + '\'' +
+                ", recommendationList=" + recommendationList +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ModelJSon modelJSon = (ModelJSon) o;
+        return Objects.equals(user_id, modelJSon.user_id) && Objects.equals(recommendationList, modelJSon.recommendationList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user_id, recommendationList);
     }
 }
