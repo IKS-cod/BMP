@@ -3,14 +3,15 @@ package BMP.model;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 public class Recommendation {
     String name;
-    int id;
+    UUID id;
     String text;
 
-    public Recommendation(String name, int id, String text) {
+    public Recommendation(String name, UUID id, String text) {
         this.name = name;
         this.id = id;
         this.text = text;
@@ -27,11 +28,11 @@ public class Recommendation {
         this.name = name;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

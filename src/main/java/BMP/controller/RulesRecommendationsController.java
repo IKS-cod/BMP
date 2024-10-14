@@ -27,6 +27,7 @@ public class RulesRecommendationsController {
 
     @PostMapping
     public Product createRulesRecommendations(@RequestBody Product product) {
+        System.out.println(product.toString());
         return rulesRecommendationsService.createRulesRecommendations(product);
     }
 
