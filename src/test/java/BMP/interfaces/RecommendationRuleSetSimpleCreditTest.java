@@ -54,7 +54,7 @@ class RecommendationRuleSetSimpleCreditTest {
 
         Recommendation recommendation = new Recommendation(
                 "Simple Credit",
-                3,
+                UUID.fromString("ab138afb-f3ba-4a93-b74f-0fcee86d447f"),
                 """
                         Откройте мир выгодных кредитов с нами!
 

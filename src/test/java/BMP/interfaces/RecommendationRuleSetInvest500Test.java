@@ -51,7 +51,7 @@ class RecommendationRuleSetInvest500Test {
 
         Recommendation recommendation = new Recommendation(
                 "Invest 500",
-                1,
+                UUID.fromString("147f6a0f-3b91-413b-ab99-87f081d60d5a"),
                 """
                         Откройте свой путь к успеху с индивидуальным инвестиционным счетом (ИИС) от нашего банка!
                         Воспользуйтесь налоговыми льготами и начните инвестировать с умом.

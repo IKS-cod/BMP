@@ -5,7 +5,6 @@ package BMP.controller;
 import BMP.model.Product;
 import BMP.model.QueryRecommendation;
 import BMP.service.RulesRecommendationsService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
