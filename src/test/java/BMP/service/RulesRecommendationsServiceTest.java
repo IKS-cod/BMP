@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest(RulesRecommendationsService.class)
 class RulesRecommendationsServiceTest {
@@ -81,6 +81,23 @@ class RulesRecommendationsServiceTest {
         Collection<Product> actual = rulesRecommendationsService.getAllRulesRecommendations();
         assertEquals(productCollection, actual);
 
+    }
+
+    @Test
+    void deleteRulesRecommendationsPositiveTest() {
+        Long id = 1L;
+        when(rulesRecommendationsRepository.existsById(id)).thenReturn(true);
+        rulesRecommendationsService.deleteRulesRecommendations(id);
+        verify( rulesRecommendationsRepository, times(1)).deleteById(any());
+
+    }
+    @Test
+    void deleteRulesRecommendationsNegativeTest() {
+        Long id = 1L;
+        when(rulesRecommendationsRepository.existsById(id)).thenReturn(false);
+        assertThrows(RuntimeException.class, () -> {
+            rulesRecommendationsService.deleteRulesRecommendations(id);;
+        });
     }
 
 }
