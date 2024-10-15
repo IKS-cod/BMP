@@ -41,6 +41,9 @@ public class RulesRecommendationsService {
      * @return Сохраненный продукт с правилами рекомендаций.
      */
     public Product createRulesRecommendations(Product product) {
+        if ( Objects.isNull(product)) {
+            throw new IllegalArgumentException("Некорректные условия");
+        }
         if (product.getRule().isEmpty() || Objects.isNull(product.getRule())) {
             throw new IllegalArgumentException("Некорректные условия");
         }

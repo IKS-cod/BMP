@@ -13,8 +13,11 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(RulesRecommendationsService.class)
@@ -41,16 +44,29 @@ class RulesRecommendationsServiceTest {
         );
         when(rulesRecommendationsRepository.save(product)).thenReturn(product);
         Product actual = rulesRecommendationsService.createRulesRecommendations(product);
-        Assertions.assertEquals(product, actual);
+        assertEquals(product, actual);
     }
 
-    /*@Test
+    @Test
     void createRulesRecommendationsNegativeTest() {
         Product product = null;
         when(rulesRecommendationsRepository.save(product)).thenReturn(product);
-        Assertions.assertThrows(IllegalArgumentException.class)
-                .isThrownBy(() -> rulesRecommendationsService.createRulesRecommendations(product));
-    }*/
+        assertThrows(IllegalArgumentException.class, () -> {
+            rulesRecommendationsService.createRulesRecommendations(product);
+        });
+    }
+
+    @Test
+    void getAllQueryRecommendationsPositiveTest() {
+        List<QueryRecommendation> queryRecommendationList = new ArrayList<>();
+        QueryRecommendation queryRecommendation = new QueryRecommendation("USER_OF",
+                List.of("CREDIT"), false);
+        queryRecommendationList.add(queryRecommendation);
+        when(queryRecommendationRepository.findAll()).thenReturn(queryRecommendationList);
+        Collection<QueryRecommendation> actual = rulesRecommendationsService.getAllQueryRecommendations();
+        assertEquals(queryRecommendationList, actual);
+
+    }
 
 
 }
