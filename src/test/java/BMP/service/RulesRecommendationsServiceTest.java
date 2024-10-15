@@ -68,5 +68,19 @@ class RulesRecommendationsServiceTest {
 
     }
 
+    @Test
+    void getAllRulesRecommendationsPositiveTest() {
+        List<Product> productCollection = new ArrayList<>();
+        Product product = new Product(
+                "Test",
+                "Test",
+                new ArrayList<>(
+                        List.of(new QueryRecommendation("USER_OF", List.of("CREDIT"), false))));
+        productCollection.add(product);
+        when(rulesRecommendationsRepository.findAll()).thenReturn(productCollection);
+        Collection<Product> actual = rulesRecommendationsService.getAllRulesRecommendations();
+        assertEquals(productCollection, actual);
+
+    }
 
 }
