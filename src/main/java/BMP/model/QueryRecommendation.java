@@ -5,12 +5,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
-@Table(name="product1")
+
+@Table(name = "product1")
 @Entity
 public class QueryRecommendation {
     @Id
     @GeneratedValue
-    Long id;
+    private Long id;
     private String query;
     private List<String> arguments;
     boolean negate;

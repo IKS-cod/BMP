@@ -1,6 +1,6 @@
 package BMP.controller;
 
-import BMP.model.ModelJSon;
+import BMP.model.ModelDtoInJson;
 import BMP.service.RecommendationsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +22,7 @@ public class RecommendationsController {
      * @return ModelJSon модель ответа на запрос
      */
     @GetMapping()
-    public ModelJSon get(String id) {
+    public ModelDtoInJson get(String id) {
         return recommendationsService.get(id);
     }
 }

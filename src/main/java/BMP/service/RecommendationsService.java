@@ -61,7 +61,7 @@ public class RecommendationsService {
      * @param id Идентификатор пользователя.
      * @return Объект ModelJSon с рекомендациями.
      */
-    public ModelJSon get(String id) {
+    public ModelDtoInJson get(String id) {
         logger.info("Запрос рекомендаций для пользователя с ID: {}", id);
 
         List<Recommendation> recommendationList = new ArrayList<>();
@@ -135,7 +135,7 @@ public class RecommendationsService {
         }
 
         logger.info("Рекомендации сформированы для пользователя с ID: {}", id);
-        return new ModelJSon(id, recommendationList);
+        return new ModelDtoInJson(id, recommendationList);
     }
 
     /**
@@ -143,10 +143,10 @@ public class RecommendationsService {
      *
      * @return Объект ProductJson с продуктами.
      */
-    private ProductJson getProductJson() {
+    private ProductDtoInJson getProductJson() {
         List<Product> products = rulesRecommendationsRepository.findAll();
         logger.info("Получен список продуктов, размер: {}", products.size());
-        return new ProductJson(products);
+        return new ProductDtoInJson(products);
     }
 
     private UUID generateUUIDFromString(String input) {

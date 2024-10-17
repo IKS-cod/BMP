@@ -13,7 +13,7 @@ import java.util.UUID;
 @Component
 public class RecommendationRuleSetTopSaving implements RecommendationRuleSet {
 
-    RecommendationsRepository repository;
+    private final RecommendationsRepository repository;
 
     public RecommendationRuleSetTopSaving(RecommendationsRepository repository) {
         this.repository = repository;

@@ -1,5 +1,8 @@
 package BMP.repository;
 
+import BMP.service.RecommendationsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,10 +14,12 @@ import java.util.UUID;
 
 /**
  * Репозиторий для выполнения запросов в БД
+ *
  * @autor Гуров Дмитрий
  */
 @Repository
 public class RecommendationsRepository {
+    private Logger logger = LoggerFactory.getLogger(RecommendationsRepository.class);
     private JdbcTemplate jdbcTemplate;
     private Map<String, Boolean> cacheUserOfAndActiveUserOf = new HashMap<>();
     private Map<String, Boolean> cacheTransactionSumCompare = new HashMap<>();
@@ -40,7 +45,7 @@ public class RecommendationsRepository {
         return result != null ? result : 0;
     }
 
-    public int checkRuleInBaseSumTransactionForProductType(UUID user,String productType, String transactionType) {
+    public int checkRuleInBaseSumTransactionForProductType(UUID user, String productType, String transactionType) {
         Integer result = jdbcTemplate.queryForObject(
                 "SELECT \n" +
                         "    SUM(AMOUNT)\n" +
@@ -71,17 +76,17 @@ public class RecommendationsRepository {
         if (sumOrCount.equals("COUNT")) {
             index = 5;
         }
-        String key = user.toString()+productType+sumOrCount;
+        String key = user.toString() + productType + sumOrCount;
 
         if (cacheUserOfAndActiveUserOf.containsKey(key)) {
-                return cacheUserOfAndActiveUserOf.get(key);
+            return cacheUserOfAndActiveUserOf.get(key);
         }
 
         String sql = String.format("SELECT CASE WHEN %s(AMOUNT) > ? " +
                 "THEN TRUE ELSE FALSE END AS is_amount\n" +
                 "FROM PRODUCTS p\n" +
                 "JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID\n" +
-                "WHERE USER_ID = ? AND p.TYPE=?",sumOrCount);
+                "WHERE USER_ID = ? AND p.TYPE=?", sumOrCount);
 
         // Выполнение запроса и получение результата
         Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, index, user, productType);
@@ -113,11 +118,11 @@ public class RecommendationsRepository {
             int number = Integer.parseInt(arg.get(3));
         } catch (NumberFormatException e) {
             // Обработка ошибки
-            System.out.println("Ошибка: некорректный формат числа: " + arg.get(3));
+            logger.warn("Ошибка: некорректный формат числа: " + arg.get(3));
 
         }
 
-        String key = user.toString()+arg;
+        String key = user.toString() + arg;
 
         if (cacheTransactionSumCompare.containsKey(key)) {
             return cacheTransactionSumCompare.get(key);
@@ -156,7 +161,7 @@ public class RecommendationsRepository {
             throw new IllegalArgumentException("Неправильное название типа продукта");
         }
 
-        String key = user.toString()+arg;
+        String key = user.toString() + arg;
 
         if (cacheTransactionSumCompareDepositWithdraw.containsKey(key)) {
             return cacheTransactionSumCompareDepositWithdraw.get(key);
@@ -196,8 +201,6 @@ public class RecommendationsRepository {
 
         return result != null ? result : false;
     }
-
-
 
 
 }

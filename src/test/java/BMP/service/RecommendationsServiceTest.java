@@ -3,7 +3,7 @@ package BMP.service;
 import BMP.interfaces.RecommendationRuleSetInvest500;
 import BMP.interfaces.RecommendationRuleSetSimpleCredit;
 import BMP.interfaces.RecommendationRuleSetTopSaving;
-import BMP.model.ModelJSon;
+import BMP.model.ModelDtoInJson;
 import BMP.model.Recommendation;
 import BMP.repository.RecommendationsRepository;
 import BMP.repository.RulesRecommendationsRepository;
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(RecommendationsService.class)
@@ -54,14 +53,14 @@ class RecommendationsServiceTest {
         recommendationList.add(recommendation11);
         recommendationList.add(recommendation22);
         recommendationList.add(recommendation33);
-        ModelJSon modelJSon = new ModelJSon(id, recommendationList);
+        ModelDtoInJson modelDtoInJson = new ModelDtoInJson(id, recommendationList);
 
         when(recommendationRuleSetInvest500.check(id)).thenReturn(recommendation11);
         when(recommendationRuleSetTopSaving.check(id)).thenReturn(recommendation22);
         when(recommendationRuleSetSimpleCredit.check(id)).thenReturn(recommendation33);
 
-        ModelJSon actual = recommendationsService.get(id);
-        Assertions.assertEquals(modelJSon, actual);
+        ModelDtoInJson actual = recommendationsService.get(id);
+        Assertions.assertEquals(modelDtoInJson, actual);
     }
     @Test
     void checkGetModelJSonNegativeTest() {
@@ -78,13 +77,13 @@ class RecommendationsServiceTest {
         recommendationList.add(recommendation11);
         recommendationList.add(recommendation22);
         recommendationList.add(recommendation33);
-        ModelJSon modelJSon = new ModelJSon(id, recommendationList);
+        ModelDtoInJson modelDtoInJson = new ModelDtoInJson(id, recommendationList);
 
         when(recommendationRuleSetInvest500.check(id)).thenReturn(recommendation11);
         when(recommendationRuleSetTopSaving.check(id)).thenReturn(recommendation44);
         when(recommendationRuleSetSimpleCredit.check(id)).thenReturn(recommendation33);
 
-        ModelJSon actual = recommendationsService.get(id);
-        Assertions.assertNotEquals(modelJSon, actual);
+        ModelDtoInJson actual = recommendationsService.get(id);
+        Assertions.assertNotEquals(modelDtoInJson, actual);
     }
 }

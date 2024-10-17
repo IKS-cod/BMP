@@ -2,13 +2,13 @@ package BMP.model;
 
 import java.util.List;
 
-public class ProductJson {
+public class ProductDtoInJson {
     private List<Product> data;
 
-    public ProductJson() {
+    public ProductDtoInJson() {
     }
 
-    public ProductJson(List<Product> data) {
+    public ProductDtoInJson(List<Product> data) {
         this.data = data;
     }
 
