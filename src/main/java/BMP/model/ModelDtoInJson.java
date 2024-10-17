@@ -1,26 +1,23 @@
 package BMP.model;
 
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Objects;
 
-@Component
-public class ModelJSon {
-    private String user_id;
+public class ModelDtoInJson {
+    private String userId;
     private List<Recommendation> recommendationList;
 
-    public ModelJSon(String user_id, List<Recommendation> recommendationList) {
-        this.user_id = user_id;
+    public ModelDtoInJson(String userId, List<Recommendation> recommendationList) {
+        this.userId = userId;
         this.recommendationList = recommendationList;
     }
 
-    public String getUser_id() {
-        return user_id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public List<Recommendation> getRecommendationList() {
@@ -31,14 +28,14 @@ public class ModelJSon {
         this.recommendationList = recommendationList;
     }
 
-    public ModelJSon() {
+    public ModelDtoInJson() {
 
     }
 
     @Override
     public String toString() {
         return "ModelJSon{" +
-                "user_id='" + user_id + '\'' +
+                "user_id='" + userId + '\'' +
                 ", recommendationList=" + recommendationList +
                 '}';
     }
@@ -47,12 +44,12 @@ public class ModelJSon {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ModelJSon modelJSon = (ModelJSon) o;
-        return Objects.equals(user_id, modelJSon.user_id) && Objects.equals(recommendationList, modelJSon.recommendationList);
+        ModelDtoInJson modelDtoInJson = (ModelDtoInJson) o;
+        return Objects.equals(userId, modelDtoInJson.userId) && Objects.equals(recommendationList, modelDtoInJson.recommendationList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user_id, recommendationList);
+        return Objects.hash(userId, recommendationList);
     }
 }

@@ -16,7 +16,7 @@ public class Product {
     @Id
     @GeneratedValue
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    Long id;
+    private Long id;
 
     private String productName;
 

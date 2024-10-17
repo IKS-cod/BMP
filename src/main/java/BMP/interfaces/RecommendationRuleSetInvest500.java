@@ -5,12 +5,13 @@ import BMP.repository.RecommendationsRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+
 /**
-* Реализация интерфейса RecommendationRuleSet Класс для проверки рекомендации Invest500
+ * Реализация интерфейса RecommendationRuleSet Класс для проверки рекомендации Invest500
  */
 @Component
-public class RecommendationRuleSetInvest500 implements RecommendationRuleSet{
-    RecommendationsRepository repository;
+public class RecommendationRuleSetInvest500 implements RecommendationRuleSet {
+    private final RecommendationsRepository repository;
 
     public RecommendationRuleSetInvest500(RecommendationsRepository repository) {
         this.repository = repository;
@@ -40,6 +41,7 @@ public class RecommendationRuleSetInvest500 implements RecommendationRuleSet{
         }
         return recommendation;
     }
+
     //Обращение в базу данных для предоставления информации о транзакциях пользователя
     private int checkSumProductTypeTransactionType(UUID uuid, String productType, String transactionType) {
         return repository.checkRuleInBaseSumTransactionForProductType(uuid, productType,

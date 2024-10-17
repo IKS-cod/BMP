@@ -5,11 +5,10 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.UUID;
 
-@Component
 public class Recommendation {
-    String name;
-    UUID id;
-    String text;
+    private String name;
+    private UUID id;
+    private String text;
 
     public Recommendation(String name, UUID id, String text) {
         this.name = name;

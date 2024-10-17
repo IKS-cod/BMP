@@ -53,7 +53,7 @@ public class RulesRecommendationsService {
         // Сохраняем каждое правило рекомендации
         for (QueryRecommendation queryRecommendation : queryRecommendationList) {
             queryRecommendationRepository.save(queryRecommendation);
-            logger.debug("Сохранено правило рекомендации: {}", queryRecommendation);
+            logger.info("Сохранено правило рекомендации: {}", queryRecommendation);
         }
 
         return rulesRecommendationsRepository.save(product);
@@ -94,7 +94,7 @@ public class RulesRecommendationsService {
 
         // Проверяем наличие правила перед удалением
         if (!rulesRecommendationsRepository.existsById(id)) {
-            logger.error("Правило рекомендации с id = {} не найдено", id);
+            logger.info("Правило рекомендации с id = {} не найдено", id);
             throw new RuntimeException("Рекомендация с id= %d не найдена".formatted(id));
         }
 

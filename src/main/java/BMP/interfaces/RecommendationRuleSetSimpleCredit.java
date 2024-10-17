@@ -14,7 +14,7 @@ import java.util.UUID;
 @Component
 public class RecommendationRuleSetSimpleCredit implements RecommendationRuleSet {
 
-    RecommendationsRepository repository;
+    private final RecommendationsRepository repository;
 
     public RecommendationRuleSetSimpleCredit(RecommendationsRepository repository) {
         this.repository = repository;
