@@ -1,8 +1,12 @@
 package BMP.interfaces;
 
 import BMP.model.Recommendation;
+import BMP.repository.QueryRecommendationRepository;
 import BMP.repository.RecommendationsRepository;
+import BMP.repository.RulesRecommendationsRepository;
+import BMP.repository.StatsRepository;
 import BMP.service.RecommendationsService;
+import BMP.service.RulesRecommendationsService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +25,18 @@ class RecommendationRuleSetInvest500Test {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private RecommendationsRepository repository;
+    private RecommendationsRepository recommendationsRepository;
+    @MockBean
+    private StatsRepository statsRepository;
 
+    @MockBean
+    private RulesRecommendationsRepository rulesRecommendationsRepository;
+    @SpyBean
+    private RulesRecommendationsService rulesRecommendationsService;
     @SpyBean
     private RecommendationsService recommendationsService;
-
+    @MockBean
+    private QueryRecommendationRepository queryRecommendationRepository;
     @SpyBean
     private RecommendationRuleSetInvest500 recommendationRuleSetInvest500;
     @SpyBean
@@ -33,13 +44,14 @@ class RecommendationRuleSetInvest500Test {
     @SpyBean
     private RecommendationRuleSetTopSaving recommendationRuleSetTopSaving;
 
+
     private int checkSumProductTypeTransactionType(UUID uuid, String productType, String transactionType) {
-        return repository.checkRuleInBaseSumTransactionForProductType(uuid, productType,
+        return recommendationsRepository.checkRuleInBaseSumTransactionForProductType(uuid, productType,
                 transactionType);
     }
     @Test
     void checkRecommendationRuleSetInvest500PositiveTest() {
-        String id = "1f9b149c-6577-448a-bc94-16bea229b71a";
+        String id = "147f6a0f-3b91-413b-ab99-87f081d60d5a";
         UUID uuid = UUID.fromString(id);
         when(checkSumProductTypeTransactionType(uuid, "DEBIT",
                 "DEPOSIT")).thenReturn(1);
@@ -47,7 +59,7 @@ class RecommendationRuleSetInvest500Test {
                 "WITHDRAW")).thenReturn(1);
         when(checkSumProductTypeTransactionType(uuid, "SAVING",
                 "DEPOSIT")).thenReturn(2000);
-        when(repository.checkRuleInBaseUserNotUseProductType(uuid, "INVEST")).thenReturn(2000);
+        when(recommendationsRepository.checkRuleInBaseUserNotUseProductType(uuid, "INVEST")).thenReturn(2000);
 
         Recommendation recommendation = new Recommendation(
                 "Invest 500",
@@ -71,7 +83,7 @@ class RecommendationRuleSetInvest500Test {
                 "WITHDRAW")).thenReturn(1);
         when(checkSumProductTypeTransactionType(uuid, "SAVING",
                 "DEPOSIT")).thenReturn(2000);
-        when(repository.checkRuleInBaseUserNotUseProductType(uuid, "INVEST")).thenReturn(2000);
+        when(recommendationsRepository.checkRuleInBaseUserNotUseProductType(uuid, "INVEST")).thenReturn(2000);
 
         Recommendation actual = recommendationRuleSetInvest500.check(id);
         Assertions.assertNull(actual);
