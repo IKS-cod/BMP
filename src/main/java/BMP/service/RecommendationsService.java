@@ -6,6 +6,7 @@ import BMP.interfaces.RecommendationRuleSetTopSaving;
 import BMP.model.*;
 import BMP.repository.RecommendationsRepository;
 import BMP.repository.RulesRecommendationsRepository;
+import BMP.repository.StatsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class RecommendationsService {
 
     private Logger logger = LoggerFactory.getLogger(RecommendationsService.class);
 
+    private final StatsRepository statsRepository;
     private final RecommendationsRepository recommendationsRepository;
     private final RulesRecommendationsRepository rulesRecommendationsRepository;
     private final RecommendationRuleSetInvest500 recommendationRuleSetInvest500;
@@ -43,11 +45,13 @@ public class RecommendationsService {
      */
 
 
-    public RecommendationsService(RecommendationsRepository recommendationsRepository,
+    public RecommendationsService(StatsRepository statsRepository,
+                                  RecommendationsRepository recommendationsRepository,
                                   RulesRecommendationsRepository rulesRecommendationsRepository,
                                   RecommendationRuleSetInvest500 recommendationRuleSetInvest500,
                                   RecommendationRuleSetSimpleCredit recommendationRuleSetSimpleCredit,
                                   RecommendationRuleSetTopSaving recommendationRuleSetTopSaving) {
+        this.statsRepository = statsRepository;
         this.recommendationsRepository = recommendationsRepository;
         this.rulesRecommendationsRepository = rulesRecommendationsRepository;
         this.recommendationRuleSetInvest500 = recommendationRuleSetInvest500;
@@ -130,6 +134,7 @@ public class RecommendationsService {
                         productList.get(i).getProductId(),
                         productList.get(i).getProductText()
                 ));
+                statsRepository.incrementCount(productList.get(i).getProductId());
                 logger.info("Добавлена рекомендация для продукта: {}", productList.get(i).getProductName());
             }
         }
@@ -162,5 +167,17 @@ public class RecommendationsService {
         recommendationsRepository.clearCaches();
     }
 
+    /**
+     * Получает статистику и возвращает объект StatsDto, содержащий список статистических записей.
+     *
+     * @return объект StatsDto, содержащий все статистические записи из репозитория.
+     */
+    public StatsDto getStats() {
+        return new StatsDto(statsRepository.findAll());
+    }
+
+    public UserFromDb getUserId(String userName) {
+        return recommendationsRepository.getIdUser(userName);
+    }
 
 }
