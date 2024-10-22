@@ -155,5 +155,12 @@ public class RecommendationsService {
         // Генерируем UUID из массива байтов
         return UUID.nameUUIDFromBytes(bytes);
     }
+    /**
+     * Очищает кэш в репозитории рекомендаций.
+     */
+    public void clearCaches() {
+        recommendationsRepository.clearCaches();
+    }
+
 
 }
