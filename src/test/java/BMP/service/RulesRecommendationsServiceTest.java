@@ -1,9 +1,14 @@
 package BMP.service;
 
+import BMP.interfaces.RecommendationRuleSetInvest500;
+import BMP.interfaces.RecommendationRuleSetSimpleCredit;
+import BMP.interfaces.RecommendationRuleSetTopSaving;
 import BMP.model.Product;
 import BMP.model.QueryRecommendation;
 import BMP.repository.QueryRecommendationRepository;
+import BMP.repository.RecommendationsRepository;
 import BMP.repository.RulesRecommendationsRepository;
+import BMP.repository.StatsRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,23 +31,32 @@ class RulesRecommendationsServiceTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private RulesRecommendationsRepository rulesRecommendationsRepository;
+    private RecommendationsRepository recommendationsRepository;
     @MockBean
-    private QueryRecommendationRepository queryRecommendationRepository;
+    private StatsRepository statsRepository;
+
+    @MockBean
+    private RulesRecommendationsRepository rulesRecommendationsRepository;
     @SpyBean
     private RulesRecommendationsService rulesRecommendationsService;
+    @SpyBean
+    private RecommendationsService recommendationsService;
+    @MockBean
+    private QueryRecommendationRepository queryRecommendationRepository;
+    @MockBean
+    private RecommendationRuleSetInvest500 recommendationRuleSetInvest500;
+    @MockBean
+    private RecommendationRuleSetSimpleCredit recommendationRuleSetSimpleCredit;
+    @MockBean
+    private RecommendationRuleSetTopSaving recommendationRuleSetTopSaving;
 
     @Test
     void createRulesRecommendationsPositiveTest() {
         Product product = new Product(
                 "Test",
                 "Test",
-                new ArrayList<>(
-                        List.of(
-                                new QueryRecommendation("USER_OF", List.of("CREDIT"), false)
-                        )
-                )
-        );
+                new ArrayList<>(List.of(new QueryRecommendation("USER_OF", List.of("CREDIT"), false))));
+
         when(rulesRecommendationsRepository.save(product)).thenReturn(product);
         Product actual = rulesRecommendationsService.createRulesRecommendations(product);
         assertEquals(product, actual);
@@ -82,14 +97,17 @@ class RulesRecommendationsServiceTest {
         assertEquals(productCollection, actual);
 
     }
-
     @Test
     void deleteRulesRecommendationsPositiveTest() {
         Long id = 1L;
-        when(rulesRecommendationsRepository.existsById(id)).thenReturn(true);
+        Product product = new Product("Test", "test", new ArrayList<>(List.of(
+                new QueryRecommendation("Test1", new ArrayList<>(List.of("test2"
+                )), true
+                ))));
+        when(!rulesRecommendationsRepository.existsById(id)).thenReturn(true);
+        when(rulesRecommendationsRepository.findById(id)).thenReturn(Optional.of(product));
         rulesRecommendationsService.deleteRulesRecommendations(id);
-        verify( rulesRecommendationsRepository, times(1)).deleteById(any());
-
+        verify(rulesRecommendationsRepository, times(1)).deleteById(id);
     }
     @Test
     void deleteRulesRecommendationsNegativeTest() {
