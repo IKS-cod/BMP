@@ -1,6 +1,7 @@
 package BMP.listener;
 
 import BMP.model.ModelDtoInJson;
+import BMP.model.UserFromDb;
 import BMP.repository.RecommendationsRepository;
 import BMP.service.RecommendationsService;
 import com.pengrad.telegrambot.TelegramBot;
