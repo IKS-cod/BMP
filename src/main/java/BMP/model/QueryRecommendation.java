@@ -6,16 +6,28 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Класс, представляющий рекомендацию продукта.
+ * Содержит информацию о продукте, его аргументах и флаге отрицания.
+ */
 @Table(name = "product1")
 @Entity
 public class QueryRecommendation {
     @Id
     @GeneratedValue
     private Long id;
+
     private String query;
     private List<String> arguments;
-    boolean negate;
+    private boolean negate;
 
+    /**
+     * Конструктор для создания рекомендации запроса.
+     *
+     * @param query    Запрос, который будет использоваться в рекомендации.
+     * @param arguments Список аргументов, связанных с запросом.
+     * @param negate    Флаг, указывающий, является ли запрос отрицательным.
+     */
     public QueryRecommendation(String query, List<String> arguments, boolean negate) {
         this.query = query;
         this.arguments = arguments;
