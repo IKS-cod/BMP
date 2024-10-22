@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Класс для обработки обновлений от Telegram-бота.
@@ -30,7 +33,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Autowired
     private TelegramBot telegramBot;
 
-    private int nameString = 0;
+    private final Pattern pattern = Pattern.compile("^/recommend\\s+(.+)$");
 
     /**
      * Конструктор класса.
@@ -63,28 +66,40 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            // Обработка обновлений
-
-            String updateText = update.message().text();
-            Long chatId = update.message().chat().id();
-            if (updateText.equals("/start") && nameString == 0) {
-                String messageText = "Привет! Для получения информации по банковским продуктам введите \"/recommend\"";
-                sendMessageInTelegramBot(chatId, messageText);
-            }
-            if (updateText.equals("/recommend") && nameString == 0) {
-                String messageText = "Введите Ваше имя!";
-                sendMessageInTelegramBot(chatId, messageText);
-                nameString++;
+            if (Objects.isNull(update.message())) {
                 return;
             }
-            if (nameString == 1) {
+            String updateText = update.message().text();
+            Long chatId = update.message().chat().id();
+            Matcher matcher = pattern.matcher(updateText);
+            // Обработка обновлений
+
+            try {
+                if (Objects.isNull(update.message().text())) {
+                    throw new RuntimeException("Нет текста");
+                }
+            } catch (RuntimeException e) {
+                sendMessageInTelegramBot(update.message().chat().id(), "Я работаю только с текстом");
+                logger.info("Отправлен не текст");
+                return;
+            }
+            if (updateText.equals("/start")) {
+                String messageText = "Привет! Для получения информации по банковским продуктам введите \"/recommend <username>\"";
+                sendMessageInTelegramBot(chatId, messageText);
+            }
+            if (updateText.equals("/recommend")) {
+                String messageText =  "Введите запрос в формате \"/recommend <username>\"";
+                sendMessageInTelegramBot(chatId, messageText);
+            }
+            if (matcher.matches()) {
+                String item = matcher.group(1);
+                System.out.println(matcher.toString());
                 UserFromDb userFromDb = null;
                 try {
-                    userFromDb = recommendationsRepository.getIdUser(updateText);
+                    userFromDb = recommendationsRepository.getIdUser(item);
                 } catch (Exception e) {
                     logger.error("An unexpected error occurred: {}", e.getMessage());
                     sendMessageInTelegramBot(chatId, "Пользователь не найден!");
-                    nameString = 0;
                     return;
                 }
 
@@ -96,8 +111,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessageInTelegramBot(chatId, modelJSon.getRecommendationList().get(i).getName() + '\n' +
                             modelJSon.getRecommendationList().get(i).getText());
                 }
-
-                nameString = 0; // Сброс состояния после обработки
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL; // Подтверждение обработки всех обновлений
