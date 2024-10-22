@@ -17,114 +17,113 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Репозиторий для выполнения запросов в БД
+ * Репозиторий для выполнения запросов в БД.
+ * <p>
+ * Этот класс предоставляет методы для проверки различных правил и получения информации о пользователях
+ * из базы данных. Он использует {@link JdbcTemplate} для выполнения SQL-запросов.
+ * </p>
  *
  * @autor Гуров Дмитрий
  */
 @Repository
 public class RecommendationsRepository {
-    private Logger logger = LoggerFactory.getLogger(RecommendationsRepository.class);
-    private JdbcTemplate jdbcTemplate;
-    private Map<String, Boolean> cacheUserOfAndActiveUserOf = new HashMap<>();
-    private Map<String, Boolean> cacheTransactionSumCompare = new HashMap<>();
-    private Map<String, Boolean> cacheTransactionSumCompareDepositWithdraw = new HashMap<>();
+    private final JdbcTemplate jdbcTemplate;
+    private final Map<String, Boolean> cacheUserOfAndActiveUserOf = new HashMap<>();
+    private final Map<String, Boolean> cacheTransactionSumCompare = new HashMap<>();
+    private final Map<String, Boolean> cacheTransactionSumCompareDepositWithdraw = new HashMap<>();
 
+    /**
+     * Конструктор для создания экземпляра RecommendationsRepository.
+     *
+     * @param jdbcTemplate JdbcTemplate для выполнения SQL-запросов.
+     */
     public RecommendationsRepository(@Qualifier("recommendationsJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Проверяет, использовал ли пользователь определенный тип продукта.
+     *
+     * @param user        UUID пользователя.
+     * @param productType Тип продукта для проверки.
+     * @return Сумма транзакций по продуктам, отличным от указанного типа.
+     */
     public int checkRuleInBaseUserNotUseProductType(UUID user, String productType) {
-
-        Integer result = jdbcTemplate.queryForObject(
-                "SELECT \n" +
-                        "    SUM(AMOUNT)\n" +
-                        "FROM \n" +
-                        "    PRODUCTS p\n" +
-                        "JOIN \n" +
-                        "    TRANSACTIONS t ON t.PRODUCT_ID = p.ID\n" +
-                        "WHERE \n" +
-                        "    USER_ID = ?\n" +
-                        "    AND p.\"TYPE\" != ?",
-                Integer.class, user, productType);
-        return result != null ? result : 0;
+        return getSumOfTransactions(user, productType, false);
     }
 
+    /**
+     * Проверяет сумму транзакций для указанного типа продукта и транзакции.
+     *
+     * @param user            UUID пользователя.
+     * @param productType     Тип продукта для проверки.
+     * @param transactionType Тип транзакции для проверки.
+     * @return Сумма транзакций для указанного типа продукта и транзакции.
+     */
     public int checkRuleInBaseSumTransactionForProductType(UUID user, String productType, String transactionType) {
-        Integer result = jdbcTemplate.queryForObject(
-                "SELECT \n" +
-                        "    SUM(AMOUNT)\n" +
-                        "FROM \n" +
-                        "    PRODUCTS p\n" +
-                        "JOIN \n" +
-                        "    TRANSACTIONS t ON t.PRODUCT_ID = p.ID\n" +
-                        "WHERE \n" +
-                        "    USER_ID = ?\n" +
-                        "    AND p.\"TYPE\" = ?\n" +
-                        "    AND t.\"TYPE\" = ?",
-                Integer.class, user, productType, transactionType);
+        return getSumOfTransactions(user, productType, true, transactionType);
+    }
+
+    /**
+     * Получает сумму транзакций по указанному пользователю и типу продукта.
+     *
+     * @param user        UUID пользователя.
+     * @param productType Тип продукта.
+     * @param isEqual     Флаг для определения оператора сравнения (равно или не равно).
+     * @param transactionType Дополнительные параметры транзакции (если необходимо).
+     * @return Сумма транзакций по указанным критериям.
+     */
+    private int getSumOfTransactions(UUID user, String productType, boolean isEqual, String... transactionType) {
+        String operator = isEqual ? "=" : "!=";
+        String sql = "SELECT SUM(AMOUNT) FROM PRODUCTS p " +
+                "JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID " +
+                "WHERE USER_ID = ? AND p.TYPE " + operator + "?";
+
+        Integer result = jdbcTemplate.queryForObject(sql, Integer.class, user, productType);
         return result != null ? result : 0;
     }
 
+    /**
+     * Проверяет, является ли сумма или количество транзакций пользователя по определенному типу продукта
+     * больше заданного значения.
+     *
+     * @param user        UUID пользователя.
+     * @param productType Тип продукта.
+     * @param sumOrCount  Параметр, указывающий на проверку суммы или количества (SUM/COUNT).
+     * @return true, если условие выполняется; иначе false.
+     */
     public boolean checkUserOfAndActiveUserOf(UUID user, String productType, String sumOrCount) {
+        SqlUtils.validateProductType(productType);
+        SqlUtils.validateSumOrCount(sumOrCount);
 
-        // Проверка типа продукта
-        if (!productType.matches("DEBIT|CREDIT|INVEST|SAVING")) {
-            throw new IllegalArgumentException("Неправильное название типа продукта");
-        }
-
-        // Проверка аргумента sumOrCount
-        if (!sumOrCount.matches("SUM|COUNT")) {
-            throw new IllegalArgumentException("Неправильный аргумент для суммы или количества");
-        }
-        int index = 0;
-        if (sumOrCount.equals("COUNT")) {
-            index = 5;
-        }
+        int index = sumOrCount.equals("COUNT") ? 5 : 0; // Установка индекса в зависимости от типа проверки
         String key = user.toString() + productType + sumOrCount;
 
         if (cacheUserOfAndActiveUserOf.containsKey(key)) {
             return cacheUserOfAndActiveUserOf.get(key);
         }
 
-        String sql = String.format("SELECT CASE WHEN %s(AMOUNT) > ? " +
-                "THEN TRUE ELSE FALSE END AS is_amount\n" +
-                "FROM PRODUCTS p\n" +
-                "JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID\n" +
-                "WHERE USER_ID = ? AND p.TYPE=?", sumOrCount);
+        String sql = String.format("SELECT CASE WHEN %s(AMOUNT) > ? THEN TRUE ELSE FALSE END AS is_amount " +
+                "FROM PRODUCTS p JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID WHERE USER_ID = ? AND p.TYPE=?", sumOrCount);
 
-        // Выполнение запроса и получение результата
         Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, index, user, productType);
-
         cacheUserOfAndActiveUserOf.put(key, result);
 
-        return result;
+        return result != null && result;
     }
 
-
+    /**
+     * Сравнивает сумму транзакций пользователя с заданным значением по определенному типу продукта и транзакции.
+     *
+     * @param user UUID пользователя.
+     * @param arg  Список аргументов: тип продукта, тип транзакции и оператор сравнения.
+     * @return true, если сумма удовлетворяет условию; иначе false.
+     */
     public boolean checkTransactionSumCompare(UUID user, List<String> arg) {
-        // arg.get(3) - это значение для суммы,
-        // arg.get(2) - это оператор (например, ">", "<", "=" и т.д.)
+        SqlUtils.validateComparisonArgs(arg);
 
         String operator = arg.get(2); // Получаем оператор
-        if (!operator.matches(">=|<=|>|<|=")) {
-            throw new IllegalArgumentException("Неправильный оператор сравнения: " + operator);
-        }
-
-        if (!arg.get(0).matches("DEBIT|CREDIT|INVEST|SAVING")) {
-            throw new IllegalArgumentException("Неправильное название типа продукта");
-        }
-
-        if (!arg.get(1).matches("WITHDRAW|DEPOSIT")) {
-            throw new IllegalArgumentException("Неправильное название типа транзакции");
-        }
-
-        try {
-            int number = Integer.parseInt(arg.get(3));
-        } catch (NumberFormatException e) {
-            // Обработка ошибки
-            logger.warn("Ошибка: некорректный формат числа: " + arg.get(3));
-
-        }
+        SqlUtils.validateOperator(operator);
 
         String key = user.toString() + arg;
 
@@ -134,9 +133,8 @@ public class RecommendationsRepository {
 
         String sql = String.format(
                 "SELECT CASE WHEN SUM(AMOUNT) %s ? THEN TRUE ELSE FALSE END AS is_amount " +
-                        "FROM PRODUCTS p " +
-                        "JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID " +
-                        "WHERE USER_ID = ? AND p.\"TYPE\"=? AND t.\"TYPE\"=?",
+                        "FROM PRODUCTS p JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID " +
+                        "WHERE USER_ID = ? AND p.TYPE=? AND t.TYPE=?",
                 operator
         );
 
@@ -144,26 +142,28 @@ public class RecommendationsRepository {
                 sql,
                 Boolean.class,
                 arg.get(3),  // Значение для сравнения
-                user,        // USER_ID
-                arg.get(0),  // Тип продукта
-                arg.get(1)   // Тип транзакции
+                user,         // USER_ID
+                arg.get(0),   // Тип продукта
+                arg.get(1)    // Тип транзакции
         );
 
         cacheTransactionSumCompare.put(key, result);
 
-        return result != null ? result : false;
+        return result != null && result;
     }
 
+    /**
+     * Сравнивает сумму депозитов и снятий средств пользователя по заданному типу продукта.
+     *
+     * @param user UUID пользователя.
+     * @param arg  Список аргументов: тип продукта и оператор сравнения.
+     * @return true, если сумма депозитов больше или меньше суммы снятий в зависимости от оператора; иначе false.
+     */
     public boolean checkTransactionSumCompareDepositWithdraw(UUID user, List<String> arg) {
+        SqlUtils.validateProductType(arg.get(0));
 
         String operator = arg.get(1);
-        if (!operator.matches(">=|<=|>|<|=")) {
-            throw new IllegalArgumentException("Неправильный оператор сравнения: " + operator);
-        }
-
-        if (!arg.get(0).matches("DEBIT|CREDIT|INVEST|SAVING")) {
-            throw new IllegalArgumentException("Неправильное название типа продукта");
-        }
+        SqlUtils.validateOperator(operator);
 
         String key = user.toString() + arg;
 
@@ -172,23 +172,10 @@ public class RecommendationsRepository {
         }
 
         String sql = String.format(
-                "SELECT \n" +
-                        "    CASE \n" +
-                        "        WHEN (SELECT SUM(t.AMOUNT) \n" +
-                        "              FROM PRODUCTS p \n" +
-                        "              JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID \n" +
-                        "              WHERE t.TYPE = 'DEPOSIT' \n" +
-                        "                AND USER_ID = ? \n" +
-                        "                AND p.\"TYPE\" = ?) %s \n" +
-                        "             (SELECT SUM(t.AMOUNT) \n" +
-                        "              FROM PRODUCTS p \n" +
-                        "              JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID \n" +
-                        "              WHERE t.TYPE = 'WITHDRAW' \n" +
-                        "                AND USER_ID = ? \n" +
-                        "                AND p.\"TYPE\" = ?) \n" +
-                        "        THEN TRUE \n" +
-                        "        ELSE FALSE \n" +
-                        "    END AS is_deposit_greater;",
+                "SELECT CASE WHEN (SELECT SUM(t.AMOUNT) FROM PRODUCTS p JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID " +
+                        "WHERE t.TYPE = 'DEPOSIT' AND USER_ID = ? AND p.TYPE = ?) %s " +
+                        "(SELECT SUM(t.AMOUNT) FROM PRODUCTS p JOIN TRANSACTIONS t ON t.PRODUCT_ID = p.ID " +
+                        "WHERE t.TYPE = 'WITHDRAW' AND USER_ID = ? AND p.TYPE = ?) THEN TRUE ELSE FALSE END AS is_deposit_greater;",
                 operator
         );
 
@@ -203,16 +190,7 @@ public class RecommendationsRepository {
 
         cacheTransactionSumCompareDepositWithdraw.put(key, result);
 
-        return result != null ? result : false;
-    }
-
-    /**
-     * Очищает кэши, используемые в репозитории.
-     */
-    public void clearCaches() {
-        cacheUserOfAndActiveUserOf.clear();
-        cacheTransactionSumCompare.clear();
-        cacheTransactionSumCompareDepositWithdraw.clear();
+        return result != null && result;
     }
 
     /**
@@ -233,6 +211,15 @@ public class RecommendationsRepository {
         } catch (DataAccessException e) {
             throw new RuntimeException("Ошибка доступа к базе данных", e);
         }
+    }
+
+    /**
+     * Очищает кэши, используемые в репозитории.
+     */
+    public void clearCaches() {
+        cacheUserOfAndActiveUserOf.clear();
+        cacheTransactionSumCompare.clear();
+        cacheTransactionSumCompareDepositWithdraw.clear();
     }
 
 

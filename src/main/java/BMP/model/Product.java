@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Класс, представляющий продукт в системе.
+ * Содержит информацию о названии, описании и правилах рекомендаций для продукта.
+ */
 @Table(name = "product")
 @Entity
 public class Product {

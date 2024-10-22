@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Сервис для обработки правил рекомендаций.
+ * Сервис для управления правилами рекомендаций.
+ * Предоставляет методы для создания, получения и удаления правил рекомендаций и связанных статистических данных.
  */
 @Service
 public class RulesRecommendationsService {
@@ -28,8 +29,9 @@ public class RulesRecommendationsService {
     /**
      * Конструктор для инициализации зависимостей.
      *
-     * @param rulesRecommendationsRepository  Репозиторий правил рекомендаций.
-     * @param queryRecommendationRepository    Репозиторий запросов рекомендаций.
+     * @param statsRepository                  Репозиторий статистики.
+     * @param rulesRecommendationsRepository    Репозиторий правил рекомендаций.
+     * @param queryRecommendationRepository     Репозиторий запросов рекомендаций.
      */
     public RulesRecommendationsService(StatsRepository statsRepository,
                                        RulesRecommendationsRepository rulesRecommendationsRepository,
@@ -39,6 +41,13 @@ public class RulesRecommendationsService {
         this.queryRecommendationRepository = queryRecommendationRepository;
     }
 
+    /**
+     * Создает правила рекомендаций для указанного продукта.
+     *
+     * @param product Продукт, для которого создаются правила рекомендаций.
+     * @return Сохраненный продукт с правилами рекомендаций.
+     * @throws IllegalArgumentException Если продукт или его правила некорректны.
+     */
     public Product createRulesRecommendations(Product product) {
         if (Objects.isNull(product)) {
             throw new IllegalArgumentException("Некорректные условия");
@@ -61,10 +70,18 @@ public class RulesRecommendationsService {
 
         return rulesRecommendationsRepository.save(product);
     }
+
+    /**
+     * Получает все запросы рекомендаций.
+     *
+     * @return Коллекция всех запросов рекомендаций.
+     */
     public Collection<QueryRecommendation> getAllQueryRecommendations() {
         logger.info("Вызван метод для получения всех запросов рекомендаций.");
+
         Collection<QueryRecommendation> productCollection = queryRecommendationRepository.findAll();
         logger.info("Получена коллекция запросов рекомендаций, размер: {}", productCollection.size());
+
         return productCollection;
     }
 
@@ -75,8 +92,10 @@ public class RulesRecommendationsService {
      */
     public Collection<Product> getAllRulesRecommendations() {
         logger.info("Вызван метод для получения всех правил рекомендаций.");
+
         Collection<Product> productCollection = rulesRecommendationsRepository.findAll();
         logger.info("Получена коллекция правил рекомендаций, размер: {}", productCollection.size());
+
         return productCollection;
     }
 

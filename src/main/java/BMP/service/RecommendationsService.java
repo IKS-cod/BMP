@@ -25,7 +25,6 @@ import java.util.UUID;
 public class RecommendationsService {
 
     private Logger logger = LoggerFactory.getLogger(RecommendationsService.class);
-
     private final StatsRepository statsRepository;
     private final RecommendationsRepository recommendationsRepository;
     private final RulesRecommendationsRepository rulesRecommendationsRepository;
@@ -33,18 +32,16 @@ public class RecommendationsService {
     private final RecommendationRuleSetSimpleCredit recommendationRuleSetSimpleCredit;
     private final RecommendationRuleSetTopSaving recommendationRuleSetTopSaving;
 
-
     /**
      * Конструктор для инициализации зависимостей.
      *
-     * @param recommendationsRepository      Репозиторий рекомендаций.
-     * @param rulesRecommendationsRepository  Репозиторий правил рекомендаций.
-     * @param recommendationRuleSetInvest500  Набор правил для инвестиций 500.
-     * @param recommendationRuleSetSimpleCredit Набор правил для простого кредита.
-     * @param recommendationRuleSetTopSaving   Набор правил для топ-сбережений.
+     * @param statsRepository                   Репозиторий статистики.
+     * @param recommendationsRepository          Репозиторий рекомендаций.
+     * @param rulesRecommendationsRepository     Репозиторий правил рекомендаций.
+     * @param recommendationRuleSetInvest500     Набор правил для Invest500.
+     * @param recommendationRuleSetSimpleCredit  Набор правил для SimpleCredit.
+     * @param recommendationRuleSetTopSaving     Набор правил для TopSaving.
      */
-
-
     public RecommendationsService(StatsRepository statsRepository,
                                   RecommendationsRepository recommendationsRepository,
                                   RulesRecommendationsRepository rulesRecommendationsRepository,
@@ -59,11 +56,12 @@ public class RecommendationsService {
         this.recommendationRuleSetTopSaving = recommendationRuleSetTopSaving;
     }
 
+
     /**
      * Получает рекомендации на основе идентификатора пользователя.
      *
      * @param id Идентификатор пользователя.
-     * @return Объект ModelJSon с рекомендациями.
+     * @return Объект ModelDtoInJson с рекомендациями.
      */
     public ModelDtoInJson get(String id) {
         logger.info("Запрос рекомендаций для пользователя с ID: {}", id);
@@ -125,7 +123,7 @@ public class RecommendationsService {
                 }
             }
 
-            // Если все правила продукта возвращают true (негативные), добавляем продукт в рекомендации
+            // Если все правила продукта возвращают true, добавляем продукт в рекомендации
             if (productList.get(i).getRule()
                     .stream()
                     .allMatch(QueryRecommendation::isNegate)) {
@@ -146,7 +144,7 @@ public class RecommendationsService {
     /**
      * Получает список продуктов в формате JSON.
      *
-     * @return Объект ProductJson с продуктами.
+     * @return Объект ProductDtoInJson с продуктами.
      */
     private ProductDtoInJson getProductJson() {
         List<Product> products = rulesRecommendationsRepository.findAll();
@@ -154,12 +152,29 @@ public class RecommendationsService {
         return new ProductDtoInJson(products);
     }
 
+    /**
+     * Генерирует UUID из строки.
+     *
+     * @param input Входная строка для генерации UUID.
+     * @return Сгенерированный UUID.
+     */
     private UUID generateUUIDFromString(String input) {
         // Преобразуем строку в массив байтов
         byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
         // Генерируем UUID из массива байтов
         return UUID.nameUUIDFromBytes(bytes);
     }
+
+    /**
+     * Получает идентификатор пользователя по имени пользователя.
+     *
+     * @param userName Имя пользователя.
+     * @return Объект UserFromDb с идентификатором пользователя.
+     */
+    public UserFromDb getUserId(String userName) {
+        return recommendationsRepository.getIdUser(userName);
+    }
+
     /**
      * Очищает кэш в репозитории рекомендаций.
      */
@@ -174,10 +189,4 @@ public class RecommendationsService {
      */
     public StatsDto getStats() {
         return new StatsDto(statsRepository.findAll());
-    }
-
-    public UserFromDb getUserId(String userName) {
-        return recommendationsRepository.getIdUser(userName);
-    }
-
-}
+    }}
