@@ -202,5 +202,14 @@ public class RecommendationsRepository {
         return result != null ? result : false;
     }
 
+    /**
+     * Очищает кэши, используемые в репозитории.
+     */
+    public void clearCaches() {
+        cacheUserOfAndActiveUserOf.clear();
+        cacheTransactionSumCompare.clear();
+        cacheTransactionSumCompareDepositWithdraw.clear();
+    }
+
 
 }
