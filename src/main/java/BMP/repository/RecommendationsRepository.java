@@ -1,9 +1,13 @@
 package BMP.repository;
 
+import BMP.model.UserFromDb;
 import BMP.service.RecommendationsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -209,6 +213,26 @@ public class RecommendationsRepository {
         cacheUserOfAndActiveUserOf.clear();
         cacheTransactionSumCompare.clear();
         cacheTransactionSumCompareDepositWithdraw.clear();
+    }
+
+    /**
+     * Получает информацию о пользователе по имени пользователя.
+     *
+     * @param userName Имя пользователя для поиска.
+     * @return Объект UserFromDb с информацией о пользователе или null, если пользователь не найден.
+     */
+    public UserFromDb getIdUser(String userName) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT ID, FIRST_NAME, LAST_NAME FROM USERS u WHERE u.USERNAME = ?",
+                    new Object[]{userName},
+                    new BeanPropertyRowMapper<>(UserFromDb.class)
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null; // Обработка случая отсутствия пользователя
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Ошибка доступа к базе данных", e);
+        }
     }
 
 
