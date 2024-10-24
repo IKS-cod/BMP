@@ -15,4 +15,5 @@ _Данный проект является учебным, включает в 
 [Главная страница](https://github.com/IKS-cod/BMP/wiki)
 # UML-диаграммы
 [UML-диаграммы](https://github.com/IKS-cod/BMP/wiki/UML-%D0%B4%D0%B8%D0%B0%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B)
-
+# Документация OpenApi 
+[OpenApidoc](https://github.com/IKS-cod/BMP/wiki/OpenApidoc)
