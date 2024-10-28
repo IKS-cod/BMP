@@ -22,9 +22,13 @@ API для взаимодействия:
 *Java 17;
 *Spring Boot(Maven) + web;
 *Тестирование: JUnit, Mockito.
+# Требования для развертывания приложения и сборка
+[Требования и сборка](https://github.com/IKS-cod/BMP/wiki/%D0%A2%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%B4%D0%BB%D1%8F-%D1%80%D0%B0%D0%B7%D0%B2%D0%B5%D1%80%D1%82%D1%8B%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B8-%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B0)
 # Главная страница приложения
 [Главная страница](https://github.com/IKS-cod/BMP/wiki)
 # UML-диаграммы
 [UML-диаграммы](https://github.com/IKS-cod/BMP/wiki/UML-%D0%B4%D0%B8%D0%B0%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B)
 # Документация OpenApi 
 [OpenApidoc](https://github.com/IKS-cod/BMP/wiki/OpenApidoc)
+# User Story
+[User Story](https://github.com/IKS-cod/BMP/wiki/User-Story)
