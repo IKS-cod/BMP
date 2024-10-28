@@ -1,6 +1,8 @@
 package BMP.service;
 
 
+import BMP.exceptions.IncorrectConditionsException;
+import BMP.exceptions.NotFoundRecommendationException;
 import BMP.model.Product;
 import BMP.model.QueryRecommendation;
 import BMP.model.Stats;
@@ -46,14 +48,14 @@ public class RulesRecommendationsService {
      *
      * @param product Продукт, для которого создаются правила рекомендаций.
      * @return Сохраненный продукт с правилами рекомендаций.
-     * @throws IllegalArgumentException Если продукт или его правила некорректны.
+     * @throws IncorrectConditionsException Если продукт или его правила некорректны.
      */
     public Product createRulesRecommendations(Product product) {
         if (Objects.isNull(product)) {
-            throw new IllegalArgumentException("Некорректные условия");
+            throw new IncorrectConditionsException("Некорректные условия");
         }
         if (product.getRule().isEmpty() || Objects.isNull(product.getRule())) {
-            throw new IllegalArgumentException("Некорректные условия");
+            throw new IncorrectConditionsException("Некорректные условия");
         }
 
         List<QueryRecommendation> queryRecommendationList = product.getRule();
@@ -103,13 +105,13 @@ public class RulesRecommendationsService {
      * Удаляет правило рекомендации по идентификатору.
      *
      * @param id Идентификатор правила рекомендации для удаления.
-     * @throws RuntimeException Если правило с указанным идентификатором не найдено.
+     * @throws NotFoundRecommendationException Если правило с указанным идентификатором не найдено.
      */
     public void deleteRulesRecommendations(long id) {
         logger.info("Вызван метод для удаления правила рекомендации с id: {}", id);
         if (!rulesRecommendationsRepository.existsById(id)) {
             logger.error("Правило рекомендации с id = {} не найдено", id);
-            throw new RuntimeException("Рекомендация с id= %d не найдена".formatted(id));
+            throw new NotFoundRecommendationException("Рекомендация с id= %d не найдена".formatted(id));
         }
         statsRepository.deleteById(rulesRecommendationsRepository.findById(id).get().getProductId());
         rulesRecommendationsRepository.deleteById(id);
