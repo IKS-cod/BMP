@@ -1,5 +1,7 @@
 package BMP.repository;
 
+import BMP.exceptions.*;
+
 import java.util.List;
 
 /**
@@ -15,11 +17,11 @@ public class SqlUtils {
      * Проверяет, является ли указанный тип продукта допустимым.
      *
      * @param productType Тип продукта для проверки.
-     * @throws IllegalArgumentException если тип продукта недопустим.
+     * @throws IllegalNameTypeProductException если тип продукта недопустим.
      */
     public static void validateProductType(String productType) {
         if (!productType.matches("DEBIT|CREDIT|INVEST|SAVING")) {
-            throw new IllegalArgumentException("Неправильное название типа продукта");
+            throw new IllegalNameTypeProductException("Неправильное название типа продукта");
         }
     }
 
@@ -27,11 +29,11 @@ public class SqlUtils {
      * Проверяет, является ли указанный аргумент допустимым (SUM или COUNT).
      *
      * @param sumOrCount Аргумент для проверки.
-     * @throws IllegalArgumentException если аргумент недопустим.
+     * @throws IllegalArgumentForSumAndCountException если аргумент недопустим.
      */
     public static void validateSumOrCount(String sumOrCount) {
         if (!sumOrCount.matches("SUM|COUNT")) {
-            throw new IllegalArgumentException("Неправильный аргумент для суммы или количества");
+            throw new IllegalArgumentForSumAndCountException("Неправильный аргумент для суммы или количества");
         }
     }
 
@@ -39,11 +41,11 @@ public class SqlUtils {
      * Проверяет, является ли указанный оператор допустимым.
      *
      * @param operator Оператор для проверки.
-     * @throws IllegalArgumentException если оператор недопустим.
+     * @throws IncorrectComparisonOperatorException если оператор недопустим.
      */
     public static void validateOperator(String operator) {
         if (!operator.matches(">=|<=|>|<|=")) {
-            throw new IllegalArgumentException("Неправильный оператор сравнения: " + operator);
+            throw new IncorrectComparisonOperatorException("Неправильный оператор сравнения: " + operator);
         }
     }
 
@@ -51,23 +53,25 @@ public class SqlUtils {
      * Проверяет корректность аргументов для сравнения транзакций.
      *
      * @param args Список аргументов: тип продукта, тип транзакции и значение для сравнения.
-     * @throws IllegalArgumentException если аргументы некорректны.
+     * @throws IllegalNameTypeTransactionException если аргументы некорректны.
+     * @throws IllegalNumberFormatException если аргументы некорректны.
+     * @throws NotEnoughArgumentsForComparisonException если аргументы некорректны.
      */
     public static void validateComparisonArgs(List<String> args) {
         if (args.size() < 4) {
-            throw new IllegalArgumentException("Недостаточно аргументов для сравнения");
+            throw new NotEnoughArgumentsForComparisonException("Недостаточно аргументов для сравнения");
         }
 
         validateProductType(args.get(0));
 
         if (!args.get(1).matches("WITHDRAW|DEPOSIT")) {
-            throw new IllegalArgumentException("Неправильное название типа транзакции");
+            throw new IllegalNameTypeTransactionException("Неправильное название типа транзакции");
         }
 
         try {
             Integer.parseInt(args.get(3));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Некорректный формат числа: " + args.get(3), e);
+            throw new IllegalNumberFormatException("Некорректный формат числа: " + args.get(3), e);
         }
     }
 }
